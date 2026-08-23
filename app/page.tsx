@@ -190,7 +190,7 @@ export default function Home() {
           <aside className="registry-panel">
             <div className="panel-kicker"><span>PLAYER INDEX</span><span>{String(uniquePlayerCount).padStart(2, '0')} PLAYERS</span></div>
             <div className="registry-title-row">
-              <div><p>UCSD OSU! CLUB</p><h1>TRAINER<br />REGISTRY</h1></div>
+              <div><p>UCSD OSU! CLUB</p><h1>PLAYER<br />LIST</h1></div>
               <div className="registry-seal" aria-hidden="true"><span>UC</span></div>
             </div>
             <div className="summary-strip" aria-label="Roster summary">
@@ -287,7 +287,7 @@ export default function Home() {
               <div className="idle-scanner" aria-hidden="true"><span /><span /><i /></div>
               <p>PLAYER VIEWER // IDLE</p>
               <h2>Select a player</h2>
-              <span>Choose a ranked entry from the Standard leaderboard to inspect profile statistics and top plays.</span>
+              <span>Choose a ranked entry from the leaderboard to inspect profile statistics and top plays.</span>
             </div>}
           </section>
         </div>
