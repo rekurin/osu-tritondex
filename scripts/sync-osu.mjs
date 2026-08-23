@@ -52,12 +52,14 @@ function modsFrom(score) {
 }
 
 async function fetchPlayer(entry, index, token) {
-  const mode = entry.mode ?? 'osu';
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
   const key = /^\d+$/.test(entry.username) ? 'id' : 'username';
-  const userResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${encodeURIComponent(entry.username)}/${mode}?key=${key}`, { headers });
+  const requestedMode = entry.mode && ['osu', 'mania', 'taiko', 'fruits'].includes(entry.mode) ? entry.mode : undefined;
+  const modePath = requestedMode ? `/${requestedMode}` : '';
+  const userResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${encodeURIComponent(entry.username)}${modePath}?key=${key}`, { headers });
   if (!userResponse.ok) throw new Error(`profile returned ${userResponse.status}`);
   const user = await userResponse.json();
+  const mode = requestedMode ?? (['osu', 'mania', 'taiko', 'fruits'].includes(user.playmode) ? user.playmode : 'osu');
   const scoreResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${user.id}/scores/best?mode=${mode}&limit=3&include_fails=0`, { headers });
   const scores = scoreResponse.ok ? await scoreResponse.json() : [];
   const stats = user.statistics ?? {};

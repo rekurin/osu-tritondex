@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import rosterData from '../data/roster.json';
 
 type GameMode = 'osu' | 'mania' | 'taiko' | 'fruits';
-type MajorGroup = 'all' | 'engineering' | 'computing' | 'science' | 'other';
+type ModeFilter = GameMode | 'all';
 
 type RosterEntry = {
   username: string;
@@ -53,8 +53,7 @@ type DataPayload = {
 };
 
 const roster = rosterData as RosterEntry[];
-const modeLabels: Record<GameMode, string> = { osu: 'STD', mania: 'MANIA', taiko: 'TAIKO', fruits: 'CTB' };
-const groupLabels: Record<MajorGroup, string> = { all: 'ALL', engineering: 'ENGR', computing: 'COMPUTE', science: 'SCIENCE', other: 'OTHER' };
+const modeLabels: Record<ModeFilter, string> = { all: 'ALL', osu: 'STD', mania: 'MANIA', taiko: 'TAIKO', fruits: 'CTB' };
 const number = new Intl.NumberFormat('en-US');
 const compactNumber = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
 
@@ -98,13 +97,6 @@ function formatTime(iso?: string) {
   return date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).toUpperCase();
 }
 
-function majorGroup(major: string): Exclude<MajorGroup, 'all'> {
-  if (/engineering/i.test(major)) return 'engineering';
-  if (/computer|data science|mathematics-computer/i.test(major)) return 'computing';
-  if (/physics|mathematics|biochemistry|premed|economics/i.test(major)) return 'science';
-  return 'other';
-}
-
 function compactStat(value: number, hasStats: boolean) {
   return hasStats ? compactNumber.format(value) : '—';
 }
@@ -117,7 +109,7 @@ export default function Home() {
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [selectedId, setSelectedId] = useState(initialPlayers[0].id);
   const [query, setQuery] = useState('');
-  const [group, setGroup] = useState<MajorGroup>('all');
+  const [mode, setMode] = useState<ModeFilter>('all');
   const [source, setSource] = useState<'live' | 'roster'>('roster');
   const [updatedAt, setUpdatedAt] = useState<string>();
   const [notice, setNotice] = useState('Roster loaded. Statistics refresh from osu! API snapshots generated during deployment.');
@@ -152,15 +144,20 @@ export default function Home() {
   const filteredPlayers = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return players.filter((player) => {
-      const matchesGroup = group === 'all' || majorGroup(player.major) === group;
+      const matchesMode = mode === 'all' || player.mode === mode;
       const matchesQuery = !needle || `${player.username} ${player.major}`.toLowerCase().includes(needle);
-      return matchesGroup && matchesQuery;
+      return matchesMode && matchesQuery;
+    }).sort((left, right) => {
+      if (left.hasStats !== right.hasStats) return left.hasStats ? -1 : 1;
+      if (left.hasStats && right.hasStats && left.pp !== right.pp) return right.pp - left.pp;
+      return left.username.localeCompare(right.username, undefined, { sensitivity: 'base' });
     });
-  }, [group, players, query]);
+  }, [mode, players, query]);
 
-  const selected = players.find((player) => player.id === selectedId) ?? players[0];
+  const selected = filteredPlayers.find((player) => player.id === selectedId) ?? filteredPlayers[0] ?? players[0];
+  const selectedRank = Math.max(1, filteredPlayers.indexOf(selected) + 1);
   const level = getLevelParts(selected.level);
-  const rankedPlayers = players.filter((player) => player.hasStats && player.pp > 0);
+  const rankedPlayers = filteredPlayers.filter((player) => player.hasStats && player.pp > 0);
   const avgPp = rankedPlayers.length ? Math.round(rankedPlayers.reduce((sum, player) => sum + player.pp, 0) / rankedPlayers.length) : null;
 
   return (
@@ -193,35 +190,35 @@ export default function Home() {
               <div className="registry-seal" aria-hidden="true"><span>UC</span></div>
             </div>
             <div className="summary-strip" aria-label="Roster summary">
-              <div><strong>{players.length}</strong><span>TRACKED</span></div><div><strong>{avgPp === null ? '—' : compactNumber.format(avgPp)}</strong><span>AVG PP</span></div><div><strong>{source === 'live' ? 'LIVE' : 'LIST'}</strong><span>DATA</span></div>
+              <div><strong>{filteredPlayers.length}</strong><span>RANKED</span></div><div><strong>{avgPp === null ? '—' : compactNumber.format(avgPp)}</strong><span>AVG PP</span></div><div><strong>{source === 'live' ? 'LIVE' : 'LIST'}</strong><span>DATA</span></div>
             </div>
             <label className="search-box">
               <span aria-hidden="true">⌕</span><span className="sr-only">Search players or majors</span>
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="SEARCH PLAYER OR MAJOR..." /><kbd>/</kbd>
             </label>
-            <div className="mode-tabs" aria-label="Filter by major group">
-              {(Object.keys(groupLabels) as MajorGroup[]).map((item) => <button key={item} className={group === item ? 'active' : ''} onClick={() => setGroup(item)}>{groupLabels[item]}</button>)}
+            <div className="mode-tabs" aria-label="Filter ranking by osu game mode">
+              {(Object.keys(modeLabels) as ModeFilter[]).map((item) => <button key={item} className={mode === item ? 'active' : ''} onClick={() => setMode(item)}>{modeLabels[item]}</button>)}
             </div>
             <div className="player-list" aria-label="Player profiles">
-              {filteredPlayers.map((player) => {
+              {filteredPlayers.map((player, rankIndex) => {
                 const active = player.id === selected.id;
                 return (
                   <button key={player.id} className={`player-row ${active ? 'active' : ''}`} onClick={() => setSelectedId(player.id)} aria-pressed={active}>
-                    <span className="entry-number">#{String(players.indexOf(player) + 1).padStart(3, '0')}</span>
+                    <span className="entry-number">#{String(rankIndex + 1).padStart(3, '0')}</span>
                     <span className="row-avatar">{player.avatarUrl ? <img src={player.avatarUrl} alt="" /> : getInitials(player.username)}</span>
                     <span className="row-copy"><strong>{player.username}</strong><small>{player.major}</small></span>
                     <span className="row-rank"><strong>{compactStat(player.pp, player.hasStats)}</strong><small>PP</small></span><span className="row-arrow">›</span>
                   </button>
                 );
               })}
-              {filteredPlayers.length === 0 && <div className="empty-state"><strong>NO MATCH FOUND</strong><span>Try another player, major, or category.</span></div>}
+              {filteredPlayers.length === 0 && <div className="empty-state"><strong>NO MATCH FOUND</strong><span>Try another player, major, or game mode.</span></div>}
             </div>
             <div className="registry-footer"><span>API SNAPSHOT // {formatTime(updatedAt)}</span><button onClick={reloadSnapshot} disabled={loading}>{loading ? 'LOADING…' : '↻ RELOAD'}</button></div>
           </aside>
 
           <section className="profile-panel" aria-live="polite">
             <div className="profile-header">
-              <div className="profile-breadcrumb"><span>PLAYER DATA</span><i /><span>#{String(players.indexOf(selected) + 1).padStart(3, '0')}</span><i /><strong>{modeLabels[selected.mode]}</strong></div>
+              <div className="profile-breadcrumb"><span>PLAYER DATA</span><i /><span>#{String(selectedRank).padStart(3, '0')}</span><i /><strong>{modeLabels[selected.mode]}</strong></div>
               <div className="source-chip"><span className={source === 'live' ? 'live' : ''} />{source === 'live' ? 'API SNAPSHOT' : 'ROSTER DATA'}</div>
             </div>
 
@@ -235,8 +232,8 @@ export default function Home() {
                 <div className="portrait-readout"><span>SUBJECT LOCKED</span><strong>{selected.countryCode}</strong></div>
               </div>
               <div className="identity-copy">
-                <div className="taxonomy"><span>UCSD</span><span>{modeLabels[selected.mode]}</span><span>{majorGroup(selected.major).toUpperCase()}</span></div>
-                <p className="serial">TRAINER #{String(players.indexOf(selected) + 1).padStart(3, '0')}</p><h2>{selected.username}</h2>
+                <div className="taxonomy"><span>UCSD</span><span>{modeLabels[selected.mode]}</span><span>PP RANK</span></div>
+                <p className="serial">TRAINER #{String(selectedRank).padStart(3, '0')}</p><h2>{selected.username}</h2>
                 <p className="school-line">{selected.major}</p>
                 <div className="level-row">
                   <div className="level-badge"><small>LV.</small><strong>{selected.hasStats ? level.base : '—'}</strong></div>

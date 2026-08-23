@@ -14,6 +14,8 @@ A UC San Diego-themed osu! player viewer with a static, GitHub Pages-compatible 
 
 The workflow also runs daily to refresh rankings and top plays. The client secret stays in GitHub Actions and is never shipped to the browser. If the secrets are not configured, the site still deploys with the full roster and majors, but statistics show as pending.
 
+The All, Standard, Mania, Taiko, and Catch tabs sort synced players by PP from highest to lowest. When an entry does not set a mode, the sync uses that player’s default osu! game mode.
+
 ## Edit the roster
 
 Update `data/roster.json`. Each entry needs a public osu! username and a major:
@@ -22,7 +24,7 @@ Update `data/roster.json`. Each entry needs a public osu! username and a major:
 { "username": "example", "major": "Computer Science" }
 ```
 
-An optional `mode` may be set to `osu`, `mania`, `taiko`, or `fruits`; it defaults to `osu`.
+An optional `mode` may be set to `osu`, `mania`, `taiko`, or `fruits` to override the player’s default game mode.
 
 ## Run locally
 
