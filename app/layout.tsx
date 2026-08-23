@@ -7,18 +7,18 @@ const socialImage = new URL(`${basePath}/og.png`, siteOrigin).toString();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
-  title: 'TritonDex — UC San Diego osu! Player Viewer',
-  description: 'A UC San Diego-themed Pokédex-style viewer for campus osu! player profiles and statistics.',
+  title: 'TritonDex osu! LB',
+  description: 'UC San Diego osu! LB.',
   openGraph: {
-    title: 'TritonDex — UC San Diego osu! Player Viewer',
-    description: 'Scan the UCSD osu! roster, player stats, ranks, accuracy, and top plays in a campus-themed trainer registry.',
+    title: 'TritonDex osu! LB',
+    description: 'UC San Diego osu! LB.',
     type: 'website',
     images: [{ url: socialImage, width: 1672, height: 941, alt: 'TritonDex UC San Diego osu! player viewer' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TritonDex — UC San Diego osu! Player Viewer',
-    description: 'A campus-themed trainer registry for the UC San Diego osu! community.',
+    title: 'TritonDex osu! LB',
+    description: 'UC San Diego osu! LB.',
     images: [socialImage],
   },
 };
