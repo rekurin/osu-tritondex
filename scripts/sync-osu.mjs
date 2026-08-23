@@ -1,0 +1,135 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const projectRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const rosterPath = join(projectRoot, 'data', 'roster.json');
+const outputPath = join(projectRoot, 'public', 'osu-data.json');
+const roster = JSON.parse(await readFile(rosterPath, 'utf8'));
+
+function placeholder(entry, index) {
+  const mode = entry.mode ?? 'osu';
+  return {
+    id: `roster-${index + 1}`,
+    username: entry.username,
+    major: entry.major,
+    countryCode: '—',
+    globalRank: 0,
+    countryRank: 0,
+    pp: 0,
+    accuracy: 0,
+    playCount: 0,
+    level: 0,
+    maxCombo: 0,
+    rankedScore: 0,
+    hit300: 0,
+    hasStats: false,
+    osuUrl: `https://osu.ppy.sh/users/${encodeURIComponent(entry.username)}`,
+    mode,
+    topScores: [],
+  };
+}
+
+async function writeSnapshot(players, source, notice) {
+  await mkdir(dirname(outputPath), { recursive: true });
+  await writeFile(outputPath, `${JSON.stringify({ players, source, updatedAt: new Date().toISOString(), notice }, null, 2)}\n`, 'utf8');
+}
+
+async function getToken(clientId, clientSecret) {
+  const response = await fetch('https://osu.ppy.sh/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ client_id: Number(clientId), client_secret: clientSecret, grant_type: 'client_credentials', scope: 'public' }),
+  });
+  if (!response.ok) throw new Error(`OAuth request returned ${response.status}`);
+  const payload = await response.json();
+  return payload.access_token;
+}
+
+function modsFrom(score) {
+  if (!Array.isArray(score.mods)) return [];
+  return score.mods.map((mod) => typeof mod === 'string' ? mod : mod?.acronym).filter(Boolean);
+}
+
+async function fetchPlayer(entry, index, token) {
+  const mode = entry.mode ?? 'osu';
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
+  const key = /^\d+$/.test(entry.username) ? 'id' : 'username';
+  const userResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${encodeURIComponent(entry.username)}/${mode}?key=${key}`, { headers });
+  if (!userResponse.ok) throw new Error(`profile returned ${userResponse.status}`);
+  const user = await userResponse.json();
+  const scoreResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${user.id}/scores/best?mode=${mode}&limit=3&include_fails=0`, { headers });
+  const scores = scoreResponse.ok ? await scoreResponse.json() : [];
+  const stats = user.statistics ?? {};
+
+  return {
+    id: String(user.id),
+    username: user.username,
+    major: entry.major,
+    countryCode: user.country_code ?? '—',
+    globalRank: stats.global_rank ?? 0,
+    countryRank: stats.country_rank ?? 0,
+    pp: stats.pp ?? 0,
+    accuracy: stats.hit_accuracy ?? 0,
+    playCount: stats.play_count ?? 0,
+    level: Number(stats.level?.current ?? 0) + Number(stats.level?.progress ?? 0) / 100,
+    maxCombo: stats.maximum_combo ?? 0,
+    rankedScore: stats.ranked_score ?? 0,
+    hit300: stats.count_300 ?? 0,
+    hasStats: Boolean(user.statistics),
+    avatarUrl: user.avatar_url,
+    osuUrl: `https://osu.ppy.sh/users/${user.id}/${mode}`,
+    mode,
+    topScores: scores.slice(0, 3).map((score) => ({
+      title: score.beatmapset?.title ?? 'Unknown beatmap',
+      artist: score.beatmapset?.artist ?? 'Unknown artist',
+      difficulty: score.beatmap?.version ?? 'Unknown difficulty',
+      accuracy: Number(score.accuracy ?? 0) * 100,
+      pp: score.pp ?? 0,
+      rank: score.rank ?? '—',
+      mods: modsFrom(score),
+    })),
+  };
+}
+
+async function mapWithLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  async function run() {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await worker(items[index], index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
+  return results;
+}
+
+const clientId = process.env.OSU_CLIENT_ID;
+const clientSecret = process.env.OSU_CLIENT_SECRET;
+
+if (!clientId || !clientSecret) {
+  await writeSnapshot(roster.map(placeholder), 'roster', 'Roster loaded. Add OSU_CLIENT_ID and OSU_CLIENT_SECRET as repository secrets to generate live statistics.');
+  console.log(`Wrote roster-only snapshot for ${roster.length} players.`);
+} else {
+  try {
+    const token = await getToken(clientId, clientSecret);
+    let synced = 0;
+    const players = await mapWithLimit(roster, 5, async (entry, index) => {
+      try {
+        const player = await fetchPlayer(entry, index, token);
+        synced += 1;
+        return player;
+      } catch (error) {
+        console.warn(`Could not sync ${entry.username}: ${error instanceof Error ? error.message : 'unknown error'}`);
+        return placeholder(entry, index);
+      }
+    });
+    const source = synced > 0 ? 'live' : 'roster';
+    await writeSnapshot(players, source, `${synced}/${roster.length} campus profiles refreshed from osu! API v2.`);
+    console.log(`Wrote osu! snapshot with ${synced}/${roster.length} live profiles.`);
+  } catch (error) {
+    console.warn(`osu! sync unavailable: ${error instanceof Error ? error.message : 'unknown error'}`);
+    await writeSnapshot(roster.map(placeholder), 'roster', 'Roster loaded. The latest automated osu! API refresh was unavailable.');
+  }
+}
