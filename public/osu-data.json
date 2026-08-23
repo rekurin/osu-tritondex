@@ -1,7 +1,7 @@
 {
   "players": [
     {
-      "id": "roster-1",
+      "id": "roster-1-osu",
       "username": "squiblers",
       "major": "Electrical Engineering",
       "countryCode": "—",
@@ -20,7 +20,7 @@
       "topScores": []
     },
     {
-      "id": "roster-2",
+      "id": "roster-2-osu",
       "username": "-w-",
       "major": "Electrical Engineering",
       "countryCode": "—",
@@ -39,7 +39,7 @@
       "topScores": []
     },
     {
-      "id": "roster-3",
+      "id": "roster-3-osu",
       "username": "dicecream",
       "major": "Bioengineering",
       "countryCode": "—",
@@ -58,7 +58,7 @@
       "topScores": []
     },
     {
-      "id": "roster-4",
+      "id": "roster-4-osu",
       "username": "bumps",
       "major": "Mechanical Engineering",
       "countryCode": "—",
@@ -77,7 +77,7 @@
       "topScores": []
     },
     {
-      "id": "roster-5",
+      "id": "roster-5-osu",
       "username": "barghest",
       "major": "Mechanical Engineering",
       "countryCode": "—",
@@ -96,7 +96,7 @@
       "topScores": []
     },
     {
-      "id": "roster-6",
+      "id": "roster-6-osu",
       "username": "acri",
       "major": "Computer Engineering",
       "countryCode": "—",
@@ -115,7 +115,7 @@
       "topScores": []
     },
     {
-      "id": "roster-7",
+      "id": "roster-7-osu",
       "username": "_meemee",
       "major": "Data Science",
       "countryCode": "—",
@@ -134,7 +134,7 @@
       "topScores": []
     },
     {
-      "id": "roster-8",
+      "id": "roster-8-osu",
       "username": "39sakura",
       "major": "Data Science",
       "countryCode": "—",
@@ -153,7 +153,7 @@
       "topScores": []
     },
     {
-      "id": "roster-9",
+      "id": "roster-9-osu",
       "username": "enscribe",
       "major": "Data Science",
       "countryCode": "—",
@@ -172,7 +172,7 @@
       "topScores": []
     },
     {
-      "id": "roster-10",
+      "id": "roster-10-osu",
       "username": "kneshio",
       "major": "Data Science M.S.",
       "countryCode": "—",
@@ -191,7 +191,7 @@
       "topScores": []
     },
     {
-      "id": "roster-11",
+      "id": "roster-11-osu",
       "username": "r_kt",
       "major": "Computer Science",
       "countryCode": "—",
@@ -210,7 +210,7 @@
       "topScores": []
     },
     {
-      "id": "roster-12",
+      "id": "roster-12-osu",
       "username": "cyclone3214",
       "major": "Computer Science",
       "countryCode": "—",
@@ -229,7 +229,7 @@
       "topScores": []
     },
     {
-      "id": "roster-13",
+      "id": "roster-13-osu",
       "username": "Zefkiel",
       "major": "Computer Science M.S.",
       "countryCode": "—",
@@ -248,7 +248,7 @@
       "topScores": []
     },
     {
-      "id": "roster-14",
+      "id": "roster-14-osu",
       "username": "kevinouio",
       "major": "Major unknown · M.S.",
       "countryCode": "—",
@@ -267,7 +267,7 @@
       "topScores": []
     },
     {
-      "id": "roster-15",
+      "id": "roster-15-osu",
       "username": "Cybedra",
       "major": "Computer Science, Cognitive Science",
       "countryCode": "—",
@@ -286,7 +286,7 @@
       "topScores": []
     },
     {
-      "id": "roster-16",
+      "id": "roster-16-osu",
       "username": "Jins",
       "major": "Computer Science",
       "countryCode": "—",
@@ -305,7 +305,7 @@
       "topScores": []
     },
     {
-      "id": "roster-17",
+      "id": "roster-17-osu",
       "username": "Untitled_world",
       "major": "Physics",
       "countryCode": "—",
@@ -324,7 +324,7 @@
       "topScores": []
     },
     {
-      "id": "roster-18",
+      "id": "roster-18-osu",
       "username": "CrimsonFLAME92",
       "major": "Mathematics-Computer Science",
       "countryCode": "—",
@@ -343,7 +343,7 @@
       "topScores": []
     },
     {
-      "id": "roster-19",
+      "id": "roster-19-osu",
       "username": "seraph",
       "major": "Mathematics-Computer Science",
       "countryCode": "—",
@@ -362,7 +362,7 @@
       "topScores": []
     },
     {
-      "id": "roster-20",
+      "id": "roster-20-osu",
       "username": "filipinogamer21",
       "major": "Mathematics-Computer Science",
       "countryCode": "—",
@@ -381,7 +381,7 @@
       "topScores": []
     },
     {
-      "id": "roster-21",
+      "id": "roster-21-osu",
       "username": "n3rdiness",
       "major": "Mathematics",
       "countryCode": "—",
@@ -400,7 +400,7 @@
       "topScores": []
     },
     {
-      "id": "roster-22",
+      "id": "roster-22-osu",
       "username": "iku",
       "major": "Mathematics-Economics",
       "countryCode": "—",
@@ -419,7 +419,7 @@
       "topScores": []
     },
     {
-      "id": "roster-23",
+      "id": "roster-23-osu",
       "username": "gloomblahgah",
       "major": "Biochemistry",
       "countryCode": "—",
@@ -438,7 +438,7 @@
       "topScores": []
     },
     {
-      "id": "roster-24",
+      "id": "roster-24-osu",
       "username": "mitsuki135",
       "major": "Biochemistry",
       "countryCode": "—",
@@ -457,7 +457,7 @@
       "topScores": []
     },
     {
-      "id": "roster-25",
+      "id": "roster-25-osu",
       "username": "lightkingjr",
       "major": "Premed",
       "countryCode": "—",
@@ -476,7 +476,7 @@
       "topScores": []
     },
     {
-      "id": "roster-26",
+      "id": "roster-26-osu",
       "username": "Crescendo PiaNo",
       "major": "Mathematics M.S.",
       "countryCode": "—",
@@ -495,9 +495,9 @@
       "topScores": []
     },
     {
-      "id": "roster-27",
+      "id": "roster-27-osu",
       "username": "latte",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -514,9 +514,9 @@
       "topScores": []
     },
     {
-      "id": "roster-28",
+      "id": "roster-28-osu",
       "username": "1kotori",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -533,9 +533,9 @@
       "topScores": []
     },
     {
-      "id": "roster-29",
+      "id": "roster-29-osu",
       "username": "jefffff_1543",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -552,9 +552,9 @@
       "topScores": []
     },
     {
-      "id": "roster-30",
+      "id": "roster-30-osu",
       "username": "NubMango",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -571,9 +571,9 @@
       "topScores": []
     },
     {
-      "id": "roster-31",
+      "id": "roster-31-osu",
       "username": "XDRandyyywang",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -590,9 +590,9 @@
       "topScores": []
     },
     {
-      "id": "roster-32",
+      "id": "roster-32-osu",
       "username": "DedYuzu",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -609,9 +609,9 @@
       "topScores": []
     },
     {
-      "id": "roster-33",
+      "id": "roster-33-osu",
       "username": "Logia_Fruit",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -628,9 +628,9 @@
       "topScores": []
     },
     {
-      "id": "roster-34",
+      "id": "roster-34-osu",
       "username": "EzChock",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -647,9 +647,9 @@
       "topScores": []
     },
     {
-      "id": "roster-35",
+      "id": "roster-35-osu",
       "username": "Apple Johnison",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -666,9 +666,9 @@
       "topScores": []
     },
     {
-      "id": "roster-36",
+      "id": "roster-36-osu",
       "username": "jilly-",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -685,9 +685,9 @@
       "topScores": []
     },
     {
-      "id": "roster-37",
+      "id": "roster-37-osu",
       "username": "BsonHK",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -704,9 +704,9 @@
       "topScores": []
     },
     {
-      "id": "roster-38",
+      "id": "roster-38-osu",
       "username": "Livermorium",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -723,9 +723,9 @@
       "topScores": []
     },
     {
-      "id": "roster-39",
+      "id": "roster-39-osu",
       "username": "Chzaron",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -742,9 +742,9 @@
       "topScores": []
     },
     {
-      "id": "roster-40",
+      "id": "roster-40-osu",
       "username": "SalmonTF",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -761,9 +761,9 @@
       "topScores": []
     },
     {
-      "id": "roster-41",
+      "id": "roster-41-osu",
       "username": "potato48",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -780,9 +780,9 @@
       "topScores": []
     },
     {
-      "id": "roster-42",
+      "id": "roster-42-osu",
       "username": "fpeng",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -799,9 +799,9 @@
       "topScores": []
     },
     {
-      "id": "roster-43",
+      "id": "roster-43-osu",
       "username": "TeenoDatGuy",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -818,9 +818,9 @@
       "topScores": []
     },
     {
-      "id": "roster-44",
+      "id": "roster-44-osu",
       "username": "CandyShi",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -837,9 +837,9 @@
       "topScores": []
     },
     {
-      "id": "roster-45",
+      "id": "roster-45-osu",
       "username": "SeaAE",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -856,9 +856,9 @@
       "topScores": []
     },
     {
-      "id": "roster-46",
+      "id": "roster-46-osu",
       "username": "leeeroy",
-      "major": "Major not listed",
+      "major": "",
       "countryCode": "—",
       "globalRank": 0,
       "countryRank": 0,
@@ -876,6 +876,6 @@
     }
   ],
   "source": "roster",
-  "updatedAt": "2026-08-23T18:15:38.068Z",
+  "updatedAt": "2026-08-23T19:15:47.263Z",
   "notice": "Roster loaded. Add OSU_CLIENT_ID and OSU_CLIENT_SECRET as repository secrets to generate live statistics."
 }

@@ -6,11 +6,12 @@ const projectRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const rosterPath = join(projectRoot, 'data', 'roster.json');
 const outputPath = join(projectRoot, 'public', 'osu-data.json');
 const roster = JSON.parse(await readFile(rosterPath, 'utf8'));
+const allModes = ['osu', 'mania', 'taiko', 'fruits'];
 
-function placeholder(entry, index) {
-  const mode = entry.mode ?? 'osu';
+function placeholder(entry, index, requestedMode) {
+  const mode = requestedMode ?? entry.modes?.[0] ?? entry.mode ?? 'osu';
   return {
-    id: `roster-${index + 1}`,
+    id: `roster-${index + 1}-${mode}`,
     username: entry.username,
     major: entry.major,
     countryCode: '—',
@@ -51,21 +52,19 @@ function modsFrom(score) {
   return score.mods.map((mod) => typeof mod === 'string' ? mod : mod?.acronym).filter(Boolean);
 }
 
-async function fetchPlayer(entry, index, token) {
+async function fetchMode(entry, token, mode) {
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
   const key = /^\d+$/.test(entry.username) ? 'id' : 'username';
-  const requestedMode = entry.mode && ['osu', 'mania', 'taiko', 'fruits'].includes(entry.mode) ? entry.mode : undefined;
-  const modePath = requestedMode ? `/${requestedMode}` : '';
-  const userResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${encodeURIComponent(entry.username)}${modePath}?key=${key}`, { headers });
+  const userResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${encodeURIComponent(entry.username)}/${mode}?key=${key}`, { headers });
   if (!userResponse.ok) throw new Error(`profile returned ${userResponse.status}`);
   const user = await userResponse.json();
-  const mode = requestedMode ?? (['osu', 'mania', 'taiko', 'fruits'].includes(user.playmode) ? user.playmode : 'osu');
+  const stats = user.statistics ?? {};
+  if (!user.statistics || Number(stats.play_count ?? 0) <= 0) return null;
   const scoreResponse = await fetch(`https://osu.ppy.sh/api/v2/users/${user.id}/scores/best?mode=${mode}&limit=3&include_fails=0`, { headers });
   const scores = scoreResponse.ok ? await scoreResponse.json() : [];
-  const stats = user.statistics ?? {};
 
   return {
-    id: String(user.id),
+    id: `${user.id}-${mode}`,
     username: user.username,
     major: entry.major,
     countryCode: user.country_code ?? '—',
@@ -78,7 +77,7 @@ async function fetchPlayer(entry, index, token) {
     maxCombo: stats.maximum_combo ?? 0,
     rankedScore: stats.ranked_score ?? 0,
     hit300: stats.count_300 ?? 0,
-    hasStats: Boolean(user.statistics),
+    hasStats: true,
     avatarUrl: user.avatar_url,
     osuUrl: `https://osu.ppy.sh/users/${user.id}/${mode}`,
     mode,
@@ -92,6 +91,21 @@ async function fetchPlayer(entry, index, token) {
       mods: modsFrom(score),
     })),
   };
+}
+
+async function fetchPlayerModes(entry, token) {
+  const configuredModes = Array.isArray(entry.modes) ? entry.modes.filter((mode) => allModes.includes(mode)) : [];
+  const modes = configuredModes.length ? configuredModes : (allModes.includes(entry.mode) ? [entry.mode] : allModes);
+  const results = [];
+  for (const mode of modes) {
+    try {
+      const playerMode = await fetchMode(entry, token, mode);
+      if (playerMode) results.push(playerMode);
+    } catch (error) {
+      console.warn(`Could not sync ${entry.username} (${mode}): ${error instanceof Error ? error.message : 'unknown error'}`);
+    }
+  }
+  return results;
 }
 
 async function mapWithLimit(items, limit, worker) {
@@ -111,27 +125,23 @@ const clientId = process.env.OSU_CLIENT_ID;
 const clientSecret = process.env.OSU_CLIENT_SECRET;
 
 if (!clientId || !clientSecret) {
-  await writeSnapshot(roster.map(placeholder), 'roster', 'Roster loaded. Add OSU_CLIENT_ID and OSU_CLIENT_SECRET as repository secrets to generate live statistics.');
+  await writeSnapshot(roster.map((entry, index) => placeholder(entry, index)), 'roster', 'Roster loaded. Add OSU_CLIENT_ID and OSU_CLIENT_SECRET as repository secrets to generate live statistics.');
   console.log(`Wrote roster-only snapshot for ${roster.length} players.`);
 } else {
   try {
     const token = await getToken(clientId, clientSecret);
-    let synced = 0;
-    const players = await mapWithLimit(roster, 5, async (entry, index) => {
-      try {
-        const player = await fetchPlayer(entry, index, token);
-        synced += 1;
-        return player;
-      } catch (error) {
-        console.warn(`Could not sync ${entry.username}: ${error instanceof Error ? error.message : 'unknown error'}`);
-        return placeholder(entry, index);
-      }
+    const playerGroups = await mapWithLimit(roster, 3, async (entry, index) => {
+      const modeEntries = await fetchPlayerModes(entry, token);
+      return modeEntries.length ? modeEntries : [placeholder(entry, index)];
     });
-    const source = synced > 0 ? 'live' : 'roster';
-    await writeSnapshot(players, source, `${synced}/${roster.length} campus profiles refreshed from osu! API v2.`);
-    console.log(`Wrote osu! snapshot with ${synced}/${roster.length} live profiles.`);
+    const players = playerGroups.flat();
+    const liveEntries = players.filter((player) => player.hasStats);
+    const syncedPlayers = new Set(liveEntries.map((player) => player.username.toLowerCase())).size;
+    const source = liveEntries.length > 0 ? 'live' : 'roster';
+    await writeSnapshot(players, source, `${syncedPlayers}/${roster.length} players synced across ${liveEntries.length} active game-mode rankings.`);
+    console.log(`Wrote osu! snapshot with ${syncedPlayers}/${roster.length} players across ${liveEntries.length} active mode rankings.`);
   } catch (error) {
     console.warn(`osu! sync unavailable: ${error instanceof Error ? error.message : 'unknown error'}`);
-    await writeSnapshot(roster.map(placeholder), 'roster', 'Roster loaded. The latest automated osu! API refresh was unavailable.');
+    await writeSnapshot(roster.map((entry, index) => placeholder(entry, index)), 'roster', 'Roster loaded. The latest automated osu! API refresh was unavailable.');
   }
 }

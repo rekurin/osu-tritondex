@@ -6,12 +6,12 @@ import { useEffect, useMemo, useState } from 'react';
 import rosterData from '../data/roster.json';
 
 type GameMode = 'osu' | 'mania' | 'taiko' | 'fruits';
-type ModeFilter = GameMode | 'all';
 
 type RosterEntry = {
   username: string;
   major: string;
   mode?: GameMode;
+  modes?: GameMode[];
 };
 
 type TopScore = {
@@ -53,13 +53,13 @@ type DataPayload = {
 };
 
 const roster = rosterData as RosterEntry[];
-const modeLabels: Record<ModeFilter, string> = { all: 'ALL', osu: 'STD', mania: 'MANIA', taiko: 'TAIKO', fruits: 'CTB' };
+const modeLabels: Record<GameMode, string> = { osu: 'STD', mania: 'MANIA', taiko: 'TAIKO', fruits: 'CTB' };
 const number = new Intl.NumberFormat('en-US');
 const compactNumber = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
 
-function rosterPlayer(entry: RosterEntry, index: number): Player {
+function rosterPlayer(entry: RosterEntry, index: number, mode: GameMode): Player {
   return {
-    id: `roster-${index + 1}`,
+    id: `roster-${index + 1}-${mode}`,
     username: entry.username,
     major: entry.major,
     countryCode: '—',
@@ -74,12 +74,15 @@ function rosterPlayer(entry: RosterEntry, index: number): Player {
     hit300: 0,
     hasStats: false,
     osuUrl: `https://osu.ppy.sh/users/${encodeURIComponent(entry.username)}`,
-    mode: entry.mode ?? 'osu',
+    mode,
     topScores: [],
   };
 }
 
-const initialPlayers = roster.map(rosterPlayer);
+const initialPlayers = roster.flatMap((entry, index) => {
+  const modes = entry.modes?.length ? entry.modes : [entry.mode ?? 'osu'];
+  return modes.map((mode) => rosterPlayer(entry, index, mode));
+});
 
 function getInitials(username: string) {
   return username.replace(/[^a-z0-9]/gi, '').slice(0, 2).toUpperCase() || 'OS';
@@ -107,9 +110,9 @@ function fullStat(value: number, hasStats: boolean) {
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
-  const [selectedId, setSelectedId] = useState(initialPlayers[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [mode, setMode] = useState<ModeFilter>('all');
+  const [mode, setMode] = useState<GameMode>('osu');
   const [source, setSource] = useState<'live' | 'roster'>('roster');
   const [updatedAt, setUpdatedAt] = useState<string>();
   const [notice, setNotice] = useState('Roster loaded. Statistics refresh from osu! API snapshots generated during deployment.');
@@ -126,7 +129,7 @@ export default function Home() {
         setPlayers(payload.players);
         setSource(payload.source);
         setUpdatedAt(payload.updatedAt);
-        setSelectedId((current) => payload.players.some((player) => player.id === current) ? current : payload.players[0].id);
+        setSelectedId((current) => current && payload.players.some((player) => player.id === current) ? current : null);
       }
       setNotice(payload.notice ?? 'Roster snapshot reloaded.');
     } catch {
@@ -144,7 +147,7 @@ export default function Home() {
   const filteredPlayers = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return players.filter((player) => {
-      const matchesMode = mode === 'all' || player.mode === mode;
+      const matchesMode = player.mode === mode;
       const matchesQuery = !needle || `${player.username} ${player.major}`.toLowerCase().includes(needle);
       return matchesMode && matchesQuery;
     }).sort((left, right) => {
@@ -154,9 +157,10 @@ export default function Home() {
     });
   }, [mode, players, query]);
 
-  const selected = filteredPlayers.find((player) => player.id === selectedId) ?? filteredPlayers[0] ?? players[0];
-  const selectedRank = Math.max(1, filteredPlayers.indexOf(selected) + 1);
-  const level = getLevelParts(selected.level);
+  const selected = selectedId ? filteredPlayers.find((player) => player.id === selectedId) : undefined;
+  const selectedRank = selected ? filteredPlayers.indexOf(selected) + 1 : 0;
+  const level = selected ? getLevelParts(selected.level) : { base: 0, progress: 0 };
+  const uniquePlayerCount = new Set(players.map((player) => player.username.toLowerCase())).size;
   const rankedPlayers = filteredPlayers.filter((player) => player.hasStats && player.pp > 0);
   const avgPp = rankedPlayers.length ? Math.round(rankedPlayers.reduce((sum, player) => sum + player.pp, 0) / rankedPlayers.length) : null;
 
@@ -184,7 +188,7 @@ export default function Home() {
 
         <div className="device-body">
           <aside className="registry-panel">
-            <div className="panel-kicker"><span>PLAYER INDEX</span><span>{String(players.length).padStart(2, '0')} ENTRIES</span></div>
+            <div className="panel-kicker"><span>PLAYER INDEX</span><span>{String(uniquePlayerCount).padStart(2, '0')} PLAYERS</span></div>
             <div className="registry-title-row">
               <div><p>UCSD OSU! CLUB</p><h1>TRAINER<br />REGISTRY</h1></div>
               <div className="registry-seal" aria-hidden="true"><span>UC</span></div>
@@ -197,16 +201,16 @@ export default function Home() {
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="SEARCH PLAYER OR MAJOR..." /><kbd>/</kbd>
             </label>
             <div className="mode-tabs" aria-label="Filter ranking by osu game mode">
-              {(Object.keys(modeLabels) as ModeFilter[]).map((item) => <button key={item} className={mode === item ? 'active' : ''} onClick={() => setMode(item)}>{modeLabels[item]}</button>)}
+              {(Object.keys(modeLabels) as GameMode[]).map((item) => <button key={item} className={mode === item ? 'active' : ''} onClick={() => { setMode(item); setSelectedId(null); }}>{modeLabels[item]}</button>)}
             </div>
             <div className="player-list" aria-label="Player profiles">
               {filteredPlayers.map((player, rankIndex) => {
-                const active = player.id === selected.id;
+                const active = player.id === selected?.id;
                 return (
                   <button key={player.id} className={`player-row ${active ? 'active' : ''}`} onClick={() => setSelectedId(player.id)} aria-pressed={active}>
                     <span className="entry-number">#{String(rankIndex + 1).padStart(3, '0')}</span>
                     <span className="row-avatar">{player.avatarUrl ? <img src={player.avatarUrl} alt="" /> : getInitials(player.username)}</span>
-                    <span className="row-copy"><strong>{player.username}</strong><small>{player.major}</small></span>
+                    <span className="row-copy"><strong>{player.username}</strong><small>{modeLabels[player.mode]}{player.major ? ` · ${player.major}` : ''}</small></span>
                     <span className="row-rank"><strong>{compactStat(player.pp, player.hasStats)}</strong><small>PP</small></span><span className="row-arrow">›</span>
                   </button>
                 );
@@ -218,10 +222,13 @@ export default function Home() {
 
           <section className="profile-panel" aria-live="polite">
             <div className="profile-header">
-              <div className="profile-breadcrumb"><span>PLAYER DATA</span><i /><span>#{String(selectedRank).padStart(3, '0')}</span><i /><strong>{modeLabels[selected.mode]}</strong></div>
+              {selected
+                ? <div className="profile-breadcrumb"><span>PLAYER DATA</span><i /><span>#{String(selectedRank).padStart(3, '0')}</span><i /><strong>{modeLabels[selected.mode]}</strong></div>
+                : <div className="profile-breadcrumb"><span>PLAYER DATA</span><i /><strong>AWAITING SELECTION</strong></div>}
               <div className="source-chip"><span className={source === 'live' ? 'live' : ''} />{source === 'live' ? 'API SNAPSHOT' : 'ROSTER DATA'}</div>
             </div>
 
+            {selected ? <>
             <div className="identity-grid">
               <div className="portrait-console">
                 <div className="portrait-corners" aria-hidden="true"><span /><span /><span /><span /></div>
@@ -234,7 +241,7 @@ export default function Home() {
               <div className="identity-copy">
                 <div className="taxonomy"><span>UCSD</span><span>{modeLabels[selected.mode]}</span><span>PP RANK</span></div>
                 <p className="serial">TRAINER #{String(selectedRank).padStart(3, '0')}</p><h2>{selected.username}</h2>
-                <p className="school-line">{selected.major}</p>
+                {selected.major && <p className="school-line">{selected.major}</p>}
                 <div className="level-row">
                   <div className="level-badge"><small>LV.</small><strong>{selected.hasStats ? level.base : '—'}</strong></div>
                   <div className="level-track-wrap"><div><span>LEVEL PROGRESS</span><strong>{selected.hasStats ? `${level.progress}%` : 'PENDING'}</strong></div><div className="level-track"><span style={{ width: selected.hasStats ? `${level.progress}%` : '0%' }} /></div></div>
@@ -271,11 +278,17 @@ export default function Home() {
                 <div className="data-section-title"><span>SYSTEM READOUT</span><i /></div>
                 <dl>
                   <div><dt>COUNTRY RANK</dt><dd>{selected.hasStats && selected.countryRank ? `#${number.format(selected.countryRank)}` : '—'}</dd></div><div><dt>RANKED SCORE</dt><dd>{compactStat(selected.rankedScore, selected.hasStats)}</dd></div>
-                  <div><dt>300 HITS</dt><dd>{compactStat(selected.hit300, selected.hasStats)}</dd></div><div><dt>MAJOR</dt><dd>{selected.major}</dd></div>
+                  <div><dt>300 HITS</dt><dd>{compactStat(selected.hit300, selected.hasStats)}</dd></div>{selected.major && <div><dt>MAJOR</dt><dd>{selected.major}</dd></div>}
                 </dl>
                 <div className="waveform" aria-hidden="true">{[28,52,37,76,45,88,61,95,53,70,38,81,44,63,29,72,48,91,34,57,26,68].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div>
               </div>
             </div>
+            </> : <div className="no-player-state">
+              <div className="idle-scanner" aria-hidden="true"><span /><span /><i /></div>
+              <p>PLAYER VIEWER // IDLE</p>
+              <h2>Select a player</h2>
+              <span>Choose a ranked entry from the Standard leaderboard to inspect profile statistics and top plays.</span>
+            </div>}
           </section>
         </div>
 
