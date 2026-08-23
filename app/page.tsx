@@ -190,7 +190,7 @@ export default function Home() {
           <aside className="registry-panel">
             <div className="panel-kicker"><span>PLAYER INDEX</span><span>{String(uniquePlayerCount).padStart(2, '0')} PLAYERS</span></div>
             <div className="registry-title-row">
-              <div><p>UCSD OSU! CLUB</p><h1>PLAYER<br />LIST</h1></div>
+              <div><p>UCSD OSU! CLUB</p><h1>PLAYER<br />LEADERBOARD</h1></div>
               <div className="registry-seal" aria-hidden="true"><span>UC</span></div>
             </div>
             <div className="summary-strip" aria-label="Roster summary">
@@ -240,7 +240,7 @@ export default function Home() {
               </div>
               <div className="identity-copy">
                 <div className="taxonomy"><span>UCSD</span><span>{modeLabels[selected.mode]}</span><span>PP RANK</span></div>
-                <p className="serial">TRAINER #{String(selectedRank).padStart(3, '0')}</p><h2>{selected.username}</h2>
+                <p className="serial">#{String(selectedRank).padStart(3, '0')}</p><h2>{selected.username}</h2>
                 {selected.major && <p className="school-line">{selected.major}</p>}
                 <div className="level-row">
                   <div className="level-badge"><small>LV.</small><strong>{selected.hasStats ? level.base : '—'}</strong></div>
@@ -292,10 +292,10 @@ export default function Home() {
           </section>
         </div>
 
-        <div className="device-footer"><span>TRITONDEX IS A FAN-MADE CAMPUS VIEWER</span><span>STATIC DATA SNAPSHOT // OSU! API V2</span></div>
+        <div className="device-footer"><span></span><span></span></div>
       </section>
 
-      <footer className="site-footer"><span>BUILT FOR THE UC SAN DIEGO OSU! COMMUNITY</span><span>ROSTER MAINTAINED BY THE COMMUNITY · PUBLISH WITH PLAYER CONSENT</span></footer>
+      <footer className="site-footer"><span></span><span></span></footer>
     </main>
   );
 }
