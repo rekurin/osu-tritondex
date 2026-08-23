@@ -171,15 +171,15 @@ export default function Home() {
       <header className="site-header">
         <a className="brand" href="#top" aria-label="TritonDex home">
           <span className="brand-mark"><span>TD</span></span>
-          <span className="brand-type"><strong>TRITONDEX</strong><small>OSU! CAMPUS REGISTRY</small></span>
+          <span className="brand-type"><strong>TRITONDEX</strong><small>UCSD OSU! LEADERBOARD</small></span>
         </a>
         <div className="header-meta">
           <span className={`status-dot ${source === 'live' ? 'is-live' : ''}`} />
-          <span>{source === 'live' ? 'OSU! API SNAPSHOT' : 'ROSTER LOADED'}</span><span className="header-rule" /><span>UC SAN DIEGO</span>
+          <span>{source === 'live' ? 'OSU! API SNAPSHOT' : 'ROSTER LOADED'}</span>
         </div>
       </header>
 
-      <section className="device" id="top" aria-label="UC San Diego osu player viewer">
+      <section className="device" id="top" aria-label="">
         <div className="device-topbar">
           <div className="lens-cluster" aria-hidden="true"><span className="main-lens" /><span className="mini-light red" /><span className="mini-light gold" /><span className="mini-light green" /></div>
           <div className="device-label"><span>TRITON RESEARCH DIVISION</span><strong>DEX // 858</strong></div>
@@ -190,7 +190,7 @@ export default function Home() {
           <aside className="registry-panel">
             <div className="panel-kicker"><span>PLAYER INDEX</span><span>{String(uniquePlayerCount).padStart(2, '0')} PLAYERS</span></div>
             <div className="registry-title-row">
-              <div><p>UCSD OSU! CLUB</p><h1>PLAYER<br />LEADERBOARD</h1></div>
+              <div><p>UCSD OSU!</p><h1>PLAYER<br />LEADERBOARD</h1></div>
               <div className="registry-seal" aria-hidden="true"><span>UC</span></div>
             </div>
             <div className="summary-strip" aria-label="Roster summary">
