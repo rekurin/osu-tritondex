@@ -32,7 +32,7 @@
   { "username": "DedYuzu", "major": "" },
   { "username": "Logia_Fruit", "major": "" },
   { "username": "EzChock", "major": "" },
-  { "username": "Apple Johnison", "major": "" },
+  { "username": "Apple Johnison", "major": "Biology" },
   { "username": "jilly-", "major": "" },
   { "username": "BsonHK", "major": "" },
   { "username": "Livermorium", "major": "" },
@@ -86,5 +86,6 @@
   { "username": "Wylaf", "major": "Computer Science" },
   { "username": "oofusmaximus", "major": "" },
   { "username": "oatmeal_", "major": "" },
-  { "username": "tgolden", "major": "Mathematics-Computer Science" }
+  { "username": "tgolden", "major": "Mathematics-Computer Science" },
+  { "username": "Math God", "major": "Mathematics-Computer Science" }
 ]
